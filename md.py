@@ -20,21 +20,21 @@ from event import Event
 import pygame.display
 
 
-pygame.display.init()
-info = pygame.display.Info()
-print info
+# pygame.display.init()
+# info = pygame.display.Info()
+# print info
 
-# pygame.init()
-print "hello world"
+# # pygame.init()
+# print "hello world"
 
-test_Particle = Particle(10,10,2)
+# test_Particle = Particle(10,10,2)
 
 # pygame.display.set_mode((640, 480))
 particles = []    # particle array (to be filled with instances of the Particle class)
 r = 5             # particle radius to use
 time = 0.0        # global simulation time
-xmax              # canvas x-width
-ymax              # canvas y-width
+xmax=300              # canvas x-width
+ymax=300              # canvas y-width
 paused_log = True # paused indicator bool
  
 def setup(xmax,ymax,time,particles):
@@ -44,14 +44,13 @@ def setup(xmax,ymax,time,particles):
        Canvas size and particle number is dependent on the window 
        size. '''
     
-    xmax = min(772+28,windowWidth-2*28) 
-    ymax = xmax*0.618
-    canvas= createCanvas(xmax, ymax)
-    part_to_init = Math.round(xmax*ymax/5000.0)
+    #canvas= createCanvas(xmax, ymax)
+    part_to_init = int(round(xmax*ymax/5000.0))
+    print "part_to_init = ", part_to_init
     particles = initParticles(part_to_init,r,xmax,ymax)
+    return particles
 
-
-def draw():
+def simulate(xmax, ymax, particles, time):
 
     ''' This function drives the simulation forward in time. 
        It's continuously called for the
@@ -78,26 +77,28 @@ def draw():
     # # reporting status in progress box.
     # if (!(paused_log)) {
     #   text("Running",0.91*xmax,0.9*ymax,0.2*xmax,0.1*ymax)
-    #   dt_step = 1.0
-    #   doStep(dt_step)
+
+    dt_step = 1.0
+    particles, time =  doStep(particles, time, dt_step, xmax, ymax)
+
     # }
     # else {
     #   text("Paused",0.91*xmax,0.9*ymax,0.2*xmax,0.1*ymax)
     # }
-    # writeTime()
-    pass
+    writeTime(time)
+    return particles, time
 
-def writeTime():
+def writeTime(time):
 
     # Write the current simulation time to the process box
     # stroke(255)
     # strokeWeight(1)
     # fill(255)
     # text(time.toFixed(0),0.91*xmax,0.95*ymax,20,20)
-    pass
+    print "time =",time
 
 
-def doStep(dt):
+def doStep(particles, time, dt, xmax, ymax):
 
     ''' Advances the particle ensemble over the
        time interval dt, or to the next collision time,
@@ -110,7 +111,7 @@ def doStep(dt):
     '''
 
     # Compute the time to the next collision
-    coll_list = getCollisionList(particles)
+    coll_list = getCollisionList(particles,xmax,ymax)
     if (len(coll_list) < 1):
       dt_col = dt + 1 # just needs to exceed dt
     else:
@@ -121,18 +122,19 @@ def doStep(dt):
 	# No collision in the time step
 	advanceParticles(dt)
 	time = time + dt
-	return 0
     else:
 	# Collision has occured between the step
 	# so, carry it out. Highlighting the particles
 	# involved. 
 	advanceParticles(dt_col)
         firstEvent = coll_list[0]
-	highlightEventParticles(firstEvent)
-	performCollision(firstEvent)
+	particles = highlightEventParticles(firstEvent,particles)
+	particles = performCollision(firstEvent,particles)
         time +=  dt_col
+        
+    return particles, time
    
-def highlightEventParticles(CurrentEvent):
+def highlightEventParticles(CurrentEvent,particles):
 
     ''' Highlight the particle(s) involved in an event
 
@@ -145,9 +147,9 @@ def highlightEventParticles(CurrentEvent):
     if (CurrentEvent.p2_index != None):
         p2 = particles[CurrentEvent.p2_index]
         p2.highlight()
-        
+    return particles    
 
-def getWallCollisionTime(Part):
+def getWallCollisionTime(Part,xmax,ymax):
     
     ''' Compute the first collision time with between
        particle Part and any wall 
@@ -228,7 +230,7 @@ def  getCollisionTime(Part1, Part2):
     return None
 
 
-def getCollisionList(particles):
+def getCollisionList(particles,xmax,ymax):
     
     ''' Returns an array of collision Event objects, ordered by their
     time attribute (smallest to largest, Nones at the end)
@@ -242,16 +244,16 @@ def getCollisionList(particles):
     # loop through the particle array
     for i in range(len(particles)):
 
-	wall_collision = getWallCollisionTime(particles[i])
+	wall_collision = getWallCollisionTime(particles[i],xmax,ymax)
 	firstEvent = Event('w',wall_collision.t,i,None,wall_collision.wall)
 
-	for j = range(i+1, len(particles)):
+	for j in range(i+1, len(particles)):
 	    if (i != j):
 		col_time = getCollisionTime(particles[i],particles[j])
 
 		# Replace firstEvent if coll time is smaller than current
 		# firstEvent.time
-	        if not isNone(col_time):
+	        if col_time != None:
                     if (col_time < firstEvent.t):
 			firstEvent = Event('p',col_time,i,j,None)
             
@@ -262,11 +264,11 @@ def getCollisionList(particles):
     
 
     # Sort the Event array and return it
-    coll_list.sorted(key: lambda event: event.t)
+    coll_list = sorted(coll_list,key=lambda event: event.t)
     return coll_list
 
 
-def performCollision(event):
+def performCollision(event,particles):
     
     ''' Apply collision operator according according to event
        
@@ -289,7 +291,7 @@ def performCollision(event):
 		    particles[event.p2_index])
 	particles[event.p1_index].apply_impulse(J[0],J[1])
 	particles[event.p2_index].apply_impulse(-J[0],-J[1])
-
+    return particles
         
 def impulse(Part1,Part2):
     
@@ -331,8 +333,8 @@ def initParticles(n,r,xmax, ymax):
     parts = []
     dx = initialSpacing(n, xmax, ymax)
     n_init = 0 
-    for i in range(round(xmax/dx)):
-	for j in range(round(ymax/dx)):
+    for i in range(int(round(xmax/dx))):
+	for j in range(int(round(ymax/dx))):
 	    if (n_init < n):
     		parts.append(Particle(dx*(i+0.5),dx*(j+0.5),r))
 	        parts[n_init].show()
@@ -363,7 +365,9 @@ def addParticle():
 def mousePressed():
 
     # Act on left mouse press
-    paused_log = !(paused_log)
+    paused_log = not paused_log
 
 # testing
-setup(xmax,ymax,time,particles)
+particles = setup(xmax, ymax, time, particles)
+while True:
+    particles, time = simulate(xmax, ymax, particles, time)

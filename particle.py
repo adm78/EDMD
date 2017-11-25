@@ -98,12 +98,12 @@ class Particle(object):
 
     def reflect_side(self):
 	#Invert the x velocity component
-	self.vel.x = - self.vel.x
+	self.vel[0] = - self.vel[0]
     
 
     def reflect_top(self):
         #Invert the y velocity component
-        self.vel.y = - self.vel.y;
+        self.vel[1] = - self.vel[1];
         
 
     def apply_boundary_cond(self):
@@ -134,5 +134,5 @@ class Particle(object):
 	   Jy - scalar y-component of the impulse vector 
 	'''
 	
-	self.vel.x = self.vel.x + (Jx/self.mass)
-	self.vel.y = self.vel.y + (Jy/self.mass)
+	self.vel[0] = self.vel[0] + (Jx/self.mass)
+	self.vel[1] = self.vel[1] + (Jy/self.mass)

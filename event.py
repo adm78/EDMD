@@ -8,7 +8,7 @@
 #----------------------------------------------------------
 
 class Event(object):
-    def __init__(ct,t,p1_index,p2_index=None,wall=None):
+    def __init__(self,ct,t,p1_index,p2_index=None,wall=None):
 
         '''
         Events are either with the wall or another particle
