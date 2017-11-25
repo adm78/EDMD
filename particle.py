@@ -15,7 +15,7 @@ import random
 
 class Particle(object):
 
-    def __init__(x,y,r):
+    def __init__(self,x,y,r):
 
         '''
         Initialise the particle with a random velocity and zero
