@@ -15,9 +15,10 @@
 import pygame
 import numpy as np
 from pygame.locals import *
+import pygame.display
 from particle import Particle
 from event import Event
-import pygame.display
+
 
 
 # pygame.display.init()
@@ -30,14 +31,8 @@ import pygame.display
 # test_Particle = Particle(10,10,2)
 
 # pygame.display.set_mode((640, 480))
-particles = []    # particle array (to be filled with instances of the Particle class)
-r = 5             # particle radius to use
-time = 0.0        # global simulation time
-xmax=300              # canvas x-width
-ymax=300              # canvas y-width
-paused_log = True # paused indicator bool
  
-def setup(xmax,ymax,time,particles):
+def setup(xmax,ymax,time,particles,r):
 
     ''' This function is called upon entry to create the
        simulation canvas which we draw onto and the particle array. 
@@ -45,66 +40,25 @@ def setup(xmax,ymax,time,particles):
        size. '''
     
     #canvas= createCanvas(xmax, ymax)
-    part_to_init = int(round(xmax*ymax/5000.0))
-    print "part_to_init = ", part_to_init
+    part_to_init = int(round(xmax*ymax/3000.0))
     particles = initParticles(part_to_init,r,xmax,ymax)
     return particles
 
 def simulate(xmax, ymax, particles, time):
 
-    ''' This function drives the simulation forward in time. 
-       It's continuously called for the
-       lifetime of the scripts executions after setup()
-       has completed. '''
-
-    # set the background-up
-    # background(51)
-    # stroke(255)
-    # strokeWeight(1)
-
-    # # draw the particle to the canvas
-    # for (i = 0 i < particles.length i++) {
-    #          particles[i].show()
-    # }
+    ''' This function drives the simulation forward in time.'''
     
-    # # set up stroke for progress box
-    # noStroke()
-    # fill(0)
-    # rect(0.9*xmax,0.9*ymax,0.1*xmax,0.1*ymax)
-    # fill(255)
-
-    # # Step through time unless sim is paused,
-    # # reporting status in progress box.
-    # if (!(paused_log)) {
-    #   text("Running",0.91*xmax,0.9*ymax,0.2*xmax,0.1*ymax)
-
-    dt_step = 1.0
+    dt_step = 10.0
     particles, time =  doStep(particles, time, dt_step, xmax, ymax)
-
-    # }
-    # else {
-    #   text("Paused",0.91*xmax,0.9*ymax,0.2*xmax,0.1*ymax)
-    # }
-    writeTime(time)
     return particles, time
-
-def writeTime(time):
-
-    # Write the current simulation time to the process box
-    # stroke(255)
-    # strokeWeight(1)
-    # fill(255)
-    # text(time.toFixed(0),0.91*xmax,0.95*ymax,20,20)
-    print "time =",time
 
 
 def doStep(particles, time, dt, xmax, ymax):
 
-    ''' Advances the particle ensemble over the
-       time interval dt, or to the next collision time,
-       whichever comes first.
-       If a collision is detected within (time,time+dt)
-       then it's carried out and the sim time is updated.
+    ''' Advances the particle ensemble over the time interval dt, or
+       to the next collision time, whichever comes first.  If a
+       collision is detected within (time,time+dt) then it's carried
+       out and the sim time is updated.
        
        args:
        dt - time to try and advance simulation by
@@ -120,13 +74,13 @@ def doStep(particles, time, dt, xmax, ymax):
     # Check for collisions in the current time
     if (dt < dt_col):
 	# No collision in the time step
-	advanceParticles(dt)
+	particles = advanceParticles(particles, dt)
 	time = time + dt
     else:
 	# Collision has occured between the step
 	# so, carry it out. Highlighting the particles
 	# involved. 
-	advanceParticles(dt_col)
+	particles = advanceParticles(particles, dt_col)
         firstEvent = coll_list[0]
 	particles = highlightEventParticles(firstEvent,particles)
 	particles = performCollision(firstEvent,particles)
@@ -202,18 +156,16 @@ def getWallCollisionTime(Part,xmax,ymax):
 	t = t_ud
 	wall = w_ud
         
-        
     return type('obj', (object,),{'t': t, 'wall': wall})
 
 
 
 def  getCollisionTime(Part1, Part2):
 
-    ''' Compute the time until collision 
-       between particle Part1 and Part2.
+    ''' Compute the time until collision between particle Part1 and
+       Part2.
 
-       return time as None if no collision 
-       time solution found '''
+       return time as None if no collision time solution found '''
 
     deltaVel = Part1.vel - Part2.vel
     deltaPos = Part1.pos - Part2.pos
@@ -312,14 +264,14 @@ def impulse(Part1,Part2):
     return [J*dr[0]/sigma,J*dr[1]/sigma]
 
 
-def advanceParticles(dt):
+def advanceParticles(particles,dt):
     
     ''' Advance the ensemble forward in time by dt
     in a straight line trajectory (no collisions) '''
     
     for i in range(len(particles)):
-      particles[i].update(dt)
-      
+      particles[i].updateProperties(dt)
+    return particles
 
 def initParticles(n,r,xmax, ymax):
     
@@ -368,6 +320,62 @@ def mousePressed():
     paused_log = not paused_log
 
 # testing
-particles = setup(xmax, ymax, time, particles)
-while True:
-    particles, time = simulate(xmax, ymax, particles, time)
+def main():
+
+    particles = []    # particle array (to be filled with instances of the Particle class)
+    r = 5             # particle radius to use
+    time = 0.0        # global simulation time
+    xmax=300              # canvas x-width
+    ymax=300              # canvas y-width
+    paused_log = True # paused indicator bool
+    
+    pygame.init()
+    screen = pygame.display.set_mode((xmax, ymax))
+    pygame.display.set_caption('EDMD')
+    pygame.mouse.set_visible(1)
+    background = pygame.Surface(screen.get_size())
+    background = background.convert()
+    background.fill((250, 250, 250))
+    screen.blit(background, (0, 0))
+    pygame.display.flip()
+    clock = pygame.time.Clock()
+
+    particles = setup(xmax, ymax, time, particles,r)
+    allsprites = pygame.sprite.RenderPlain(particles)
+
+    print "Press ESP or click the 'x' to end the simulation."
+    print "Click anywhere on the screen to pause"
+    
+    quit_log = False
+    paused_log = False
+    while not quit_log:
+        clock.tick(60)
+        if not paused_log:
+            particles, time = simulate(xmax, ymax, particles, time)
+
+        #Handle Input Events
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                quit_log = True
+            elif event.type == KEYDOWN and event.key == K_ESCAPE:
+                quit_log = True
+            elif event.type == MOUSEBUTTONDOWN:
+                paused_log = not paused_log
+            elif event.type == MOUSEBUTTONUP:
+                # fist.unpunch()
+                pass
+
+        #allsprites = pygame.sprite.RenderPlain(particles)
+        if not paused_log:
+            allsprites.update()
+        
+            #Draw Everything
+            screen.blit(background, (0, 0))
+            allsprites.draw(screen)
+            pygame.display.flip()
+            
+
+    pygame.quit()
+    
+if __name__ == '__main__':
+    main()

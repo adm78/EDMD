@@ -4,16 +4,18 @@
 # various transformations to simulate particle movement.
 #
 # Requires:
-# - ???
+# - pygame
 #
 # Andrew D. McGuire 2017
 # a.mcguire227@gmail.com
 #----------------------------------------------------------
-
+import os
 import numpy as np
 import random
+from pygame.locals import *
+import pygame.display
 
-class Particle(object):
+class Particle(pygame.sprite.Sprite):
 
     def __init__(self,x,y,r):
 
@@ -26,18 +28,27 @@ class Particle(object):
         y - particle in ital y position
         r - particle radius     
         '''
-
+        pygame.sprite.Sprite.__init__(self) #call Sprite initializer
+        self.image, self.rect = load_image('particle.png', -1)
+        screen = pygame.display.get_surface()
+        self.area = screen.get_rect()
+        
         # particle attributes
         self.pos = np.array([x,y])
+        self.rect.topleft = x, y
         self.radius = r
         self.vel = np.array([random.random()*2.0-1.0,
                              random.random()*2.0-1.0])
         self.acc = np.array([0,0])
         self.acc_old = self.acc
         self.mass = 1
+                
 
     # particle methods
-    def update(self,dt):
+    def update(self):
+        self.rect.topleft = self.pos       
+    
+    def updateProperties(self,dt):
 
         ''' Compute the new acceleration, position and velocity
         vectors using the Velocity Verlet algorithm with time-step
@@ -136,3 +147,20 @@ class Particle(object):
 	
 	self.vel[0] = self.vel[0] + (Jx/self.mass)
 	self.vel[1] = self.vel[1] + (Jy/self.mass)
+
+
+#functions to create our resources
+def load_image(name, colorkey=None):
+    data_dir = os.getcwd()
+    fullname = os.path.join(data_dir, name)
+    try:
+        image = pygame.image.load(fullname)
+    except pygame.error:
+        print ('Cannot load image:', fullname)
+        raise SystemExit(str(geterror()))
+    image = image.convert()
+    if colorkey is not None:
+        if colorkey is -1:
+            colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+    return image, image.get_rect()
