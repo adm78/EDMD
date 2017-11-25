@@ -64,15 +64,6 @@ class Particle(pygame.sprite.Sprite):
 	self.update_vel(dt)
         self.unhighlight()
          
-    
-    def show(self):
-        
-        ''' Draw the particle as an circle on the canvas. Size is
-	controlled by the particle radius.  '''
-        
-        pass
-    
-
 
     def highlight(self):
         
@@ -160,16 +151,20 @@ class Particle(pygame.sprite.Sprite):
 
 # define the image loader
 def load_image(name, colorkey=None):
+    
     data_dir = os.getcwd()
     fullname = os.path.join(data_dir, name)
+    
     try:
         image = pygame.image.load(fullname)
     except pygame.error:
-        print ('Cannot load image:', fullname)
+        print 'Cannot load image:', fullname
         raise SystemExit(str(geterror()))
+    
     image = image.convert()
     if colorkey is not None:
         if colorkey is -1:
             colorkey = image.get_at((0,0))
         image.set_colorkey(colorkey, RLEACCEL)
+        
     return image, image.get_rect()

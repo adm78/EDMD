@@ -36,5 +36,5 @@ class Event(object):
         else:
 	    # Warn if second particle index was not passed
 	    if (p2_index == None):
-	        print "Warning: Event: second particle index undefined"
+	        raise RuntimeWarning("Warning: Event: second particle index undefined")
 

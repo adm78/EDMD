@@ -20,18 +20,6 @@ from particle import Particle
 from event import Event
 
 
-
-# pygame.display.init()
-# info = pygame.display.Info()
-# print info
-
-# # pygame.init()
-# print "hello world"
-
-# test_Particle = Particle(10,10,2)
-
-# pygame.display.set_mode((640, 480))
- 
 def setup(xmax,ymax,time,particles,r):
 
     ''' This function is called upon entry to create the
@@ -39,7 +27,6 @@ def setup(xmax,ymax,time,particles,r):
        Canvas size and particle number is dependent on the window 
        size. '''
     
-    #canvas= createCanvas(xmax, ymax)
     part_to_init = int(round(xmax*ymax/3000.0))
     particles = initParticles(part_to_init,r,xmax,ymax)
     return particles
@@ -235,8 +222,7 @@ def performCollision(event,particles):
 	elif (event.wall == 'u' or event.wall == 'd'):
 	    particles[event.p1_index].reflect_top()
 	else:
-	    print("Error: performCollision: invalid event")
-	    print(event)
+	    raise RuntimeError("invalid collison event detected.")
     else:
 	# Perform binary particle collision
 	J = impulse(particles[event.p1_index],
@@ -289,7 +275,6 @@ def initParticles(n,r,xmax, ymax):
 	for j in range(int(round(ymax/dx))):
 	    if (n_init < n):
     		parts.append(Particle(dx*(i+0.5),dx*(j+0.5),r))
-	        parts[n_init].show()
 		n_init += 1
     return parts
 
