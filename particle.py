@@ -111,17 +111,17 @@ class Particle(object):
 	'''Update the particle position to simulate periodic boundary
 	   conditions with box bounds (0,xmax), (0,ymax)'''
 	
-	if (self.pos.x >= xmax):
-	    self.pos.x = self.pos.x - xmax
+	if (self.pos[0] >= xmax):
+	    self.pos[0] = self.pos[0] - xmax
             
-	if (self.pos.x < 0):
-	    self.pos.x = self.pos.x + xmax
+	if (self.pos[0] < 0):
+	    self.pos[0] = self.pos[0] + xmax
 
-	if (self.pos.y >= ymax):
-	    self.pos.y = self.pos.y - ymax
+	if (self.pos[1] >= ymax):
+	    self.pos[1] = self.pos[1] - ymax
 	
-	if (self.pos.y < 0):
-	    self.pos.y = self.pos.y + ymax
+	if (self.pos[1] < 0):
+	    self.pos[1] = self.pos[1] + ymax
 	
 
     def apply_impulse(self,Jx,Jy):
