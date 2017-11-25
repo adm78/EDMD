@@ -37,7 +37,7 @@ class Particle(pygame.sprite.Sprite):
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         
-        # particle attributes
+        # set particle attributes
         self.pos = np.array([x,y])
         self.rect.topleft = x, y
         self.radius = r
@@ -158,7 +158,7 @@ class Particle(pygame.sprite.Sprite):
 	self.vel[1] = self.vel[1] + (Jy/self.mass)
 
 
-#functions to create our resources
+# define the image loader
 def load_image(name, colorkey=None):
     data_dir = os.getcwd()
     fullname = os.path.join(data_dir, name)

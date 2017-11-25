@@ -5,7 +5,7 @@
 # simulation on a pygame canvas
 #
 # Requires:
-# - ???
+# - pygame
 # - particle.py
 # - event.py
 #
@@ -306,29 +306,17 @@ def initialSpacing(n, x, y):
     dx = (num1 + num2) / den
     return dx
 
-
-def addParticle():
-
-    # Add a new Particle object to the particles array
-    # new_part = Particle(mouseX,mouseY,r)
-    # particles.append(new_part)
-    pass
-
-def mousePressed():
-
-    # Act on left mouse press
-    paused_log = not paused_log
-
-# testing
 def main():
 
+    # define the simualtion parameters
     particles = []    # particle array (to be filled with instances of the Particle class)
     r = 7             # particle radius to use
     time = 0.0        # global simulation time
     xmax=300              # canvas x-width
     ymax=300              # canvas y-width
     paused_log = True # paused indicator bool
-    
+
+    # set-up the screen
     pygame.init()
     screen = pygame.display.set_mode((xmax, ymax))
     pygame.display.set_caption('EDMD')
@@ -340,13 +328,15 @@ def main():
     pygame.display.flip()
     clock = pygame.time.Clock()
 
+    # set-up the particles
     particles = setup(xmax, ymax, time, particles,r)
     allsprites = pygame.sprite.RenderPlain(particles)
 
     print "EDMD simulation initialised with", len(particles), "particles."
     print "Press ESC or click the 'x' to end the simulation."
     print "Click anywhere on the screen to pause."
-    
+
+    #The main run loop
     quit_log = False
     paused_log = False
     while not quit_log:
@@ -366,7 +356,7 @@ def main():
                 # fist.unpunch()
                 pass
 
-        #allsprites = pygame.sprite.RenderPlain(particles)
+
         if not paused_log:
             allsprites.update()
         
