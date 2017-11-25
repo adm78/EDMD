@@ -323,7 +323,7 @@ def mousePressed():
 def main():
 
     particles = []    # particle array (to be filled with instances of the Particle class)
-    r = 5             # particle radius to use
+    r = 7             # particle radius to use
     time = 0.0        # global simulation time
     xmax=300              # canvas x-width
     ymax=300              # canvas y-width
@@ -335,7 +335,7 @@ def main():
     pygame.mouse.set_visible(1)
     background = pygame.Surface(screen.get_size())
     background = background.convert()
-    background.fill((250, 250, 250))
+    background.fill((255, 255, 255))
     screen.blit(background, (0, 0))
     pygame.display.flip()
     clock = pygame.time.Clock()
@@ -343,8 +343,9 @@ def main():
     particles = setup(xmax, ymax, time, particles,r)
     allsprites = pygame.sprite.RenderPlain(particles)
 
-    print "Press ESP or click the 'x' to end the simulation."
-    print "Click anywhere on the screen to pause"
+    print "EDMD simulation initialised with", len(particles), "particles."
+    print "Press ESC or click the 'x' to end the simulation."
+    print "Click anywhere on the screen to pause."
     
     quit_log = False
     paused_log = False

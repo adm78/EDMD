@@ -29,7 +29,11 @@ class Particle(pygame.sprite.Sprite):
         r - particle radius     
         '''
         pygame.sprite.Sprite.__init__(self) #call Sprite initializer
+
+        # load the particle images
         self.image, self.rect = load_image('particle.png', -1)
+        self.orig_image = self.image
+        self.alt_image, self.alt_rect  = load_image('particle2.png', -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         
@@ -42,6 +46,7 @@ class Particle(pygame.sprite.Sprite):
         self.acc = np.array([0,0])
         self.acc_old = self.acc
         self.mass = 1
+        self.highlighted = False
                 
 
     # particle methods
@@ -57,6 +62,7 @@ class Particle(pygame.sprite.Sprite):
         self.update_acc(dt)
 	self.update_pos(dt)
 	self.update_vel(dt)
+        self.unhighlight()
          
     
     def show(self):
@@ -71,9 +77,12 @@ class Particle(pygame.sprite.Sprite):
     def highlight(self):
         
 	# Highlight the particle red.
-	
-        pass
-    
+	self.image = self.alt_image
+
+    def unhighlight(self):
+
+        # return particle colour to original state
+        self.image = self.orig_image
 
     def update_acc(self,dt):
 
