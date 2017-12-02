@@ -1,13 +1,14 @@
 #!/usr/bin/python
-# md.py - An Event Driven Molecular Dynamics (EDMD) Program
+# md.py - An Event Driven Molecular Dynamics (EDMD) Simulator
 #
 # This script performs a simple, event-drive molecular dynamics
 # simulation on a pygame canvas
 #
-# Requires:
+# Dependencies:
 # - pygame
-# - particle.py
-# - event.py
+# - numpy
+# - particle.py (EDMD project)
+# - event.py (EDMD project)
 #
 # Andrew D. McGuire 2017
 # a.mcguire227@gmail.com
@@ -16,31 +17,36 @@ import pygame
 import numpy as np
 from pygame.locals import *
 import pygame.display
+import argparse
 from particle import Particle
 from event import Event
 
+# Handle command line args
+parser = argparse.ArgumentParser(description='''An Event Driven Molecular Dynamics (EDMD) Simulator
+Andrew D. McGuire 2017''',
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('-n', action="store", dest="npart", default=30, type=int,
+                    help='number of particles to simulate')
+parser.add_argument('--dt', action="store", dest="dt", type=float, default=10.0,
+                    help='max time-step size between graphical updates - higher is faster')
+parser.add_argument('-x', action="store", dest="xmax", type=int, default=300.0,
+                    help='simulation box width [px]')
+parser.add_argument('-y', action="store", dest="ymax", type=int, default=300.0,
+                    help='simulation box height [px]')
+options = parser.parse_args()
 
-def setup(xmax,ymax,time,particles,r):
+def setup(options,time,r):
 
     ''' This function is called upon entry to create the
        simulation canvas which we draw onto and the particle array. 
        Canvas size and particle number is dependent on the window 
        size. '''
     
-    part_to_init = int(round(xmax*ymax/3000.0))
-    particles = initParticles(part_to_init,r,xmax,ymax)
+    #part_to_init = options.npart #int(round(xmax*ymax/3000.0))
+    particles = initParticles(options.npart,r,options.xmax,options.ymax)
     return particles
 
-def simulate(xmax, ymax, particles, time):
-
-    ''' This function drives the simulation forward in time.'''
-    
-    dt_step = 10.0
-    particles, time =  doStep(particles, time, dt_step, xmax, ymax)
-    return particles, time
-
-
-def doStep(particles, time, dt, xmax, ymax):
+def simulate(options, particles, time):
 
     ''' Advances the particle ensemble over the time interval dt, or
        to the next collision time, whichever comes first.  If a
@@ -48,11 +54,18 @@ def doStep(particles, time, dt, xmax, ymax):
        out and the sim time is updated.
        
        args:
-       dt - time to try and advance simulation by
-    '''
+       options   - a valid EDMD options object
+       particles - list of Particle objects
+       time      - simualtion time at start of jump
 
+       returns:
+       particles - the updates list of Particle objects
+       time      - new simulation time
+    '''
+    
     # Compute the time to the next collision
-    coll_list = getCollisionList(particles,xmax,ymax)
+    coll_list = getCollisionList(particles,options.xmax,options.ymax)
+    dt = options.dt
     if (len(coll_list) < 1):
       dt_col = dt + 1 # just needs to exceed dt
     else:
@@ -73,7 +86,7 @@ def doStep(particles, time, dt, xmax, ymax):
 	particles = performCollision(firstEvent,particles)
         time +=  dt_col
         
-    return particles, time
+    return particles, time   
    
 def highlightEventParticles(CurrentEvent,particles):
 
@@ -291,19 +304,16 @@ def initialSpacing(n, x, y):
     dx = (num1 + num2) / den
     return dx
 
-def main():
+def main(options):
 
     # define the simualtion parameters
-    particles = []    # particle array (to be filled with instances of the Particle class)
     r = 7             # particle radius to use
     time = 0.0        # global simulation time
-    xmax=300              # canvas x-width
-    ymax=300              # canvas y-width
     paused_log = True # paused indicator bool
 
     # set-up the screen
     pygame.init()
-    screen = pygame.display.set_mode((xmax, ymax))
+    screen = pygame.display.set_mode((options.xmax, options.ymax))
     pygame.display.set_caption('EDMD')
     pygame.mouse.set_visible(1)
     background = pygame.Surface(screen.get_size())
@@ -314,7 +324,7 @@ def main():
     clock = pygame.time.Clock()
 
     # set-up the particles
-    particles = setup(xmax, ymax, time, particles,r)
+    particles = setup(options, time, r)
     allsprites = pygame.sprite.RenderPlain(particles)
 
     print "EDMD simulation initialised with", len(particles), "particles."
@@ -327,7 +337,7 @@ def main():
     while not quit_log:
         clock.tick(60)
         if not paused_log:
-            particles, time = simulate(xmax, ymax, particles, time)
+            particles, time = simulate(options, particles, time)
 
         #Handle Input Events
         for event in pygame.event.get():
@@ -354,4 +364,4 @@ def main():
     pygame.quit()
     
 if __name__ == '__main__':
-    main()
+    main(options)
