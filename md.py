@@ -22,8 +22,7 @@ from particle import Particle
 from event import Event
 
 # Handle command line args
-parser = argparse.ArgumentParser(description='''An Event Driven Molecular Dynamics (EDMD) Simulator
-Andrew D. McGuire 2017''',
+parser = argparse.ArgumentParser(description='An Event Driven Molecular Dynamics (EDMD) Simulator',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-n', action="store", dest="npart", default=30, type=int,
                     help='number of particles to simulate')
