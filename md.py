@@ -312,7 +312,7 @@ def main(options):
 
     # set-up the screen
     pygame.init()
-    screen = pygame.display.set_mode((options.xmax, options.ymax))
+    screen = pygame.display.set_mode((int(options.xmax), int(options.ymax)))
     pygame.display.set_caption('EDMD')
     pygame.mouse.set_visible(1)
     background = pygame.Surface(screen.get_size())
