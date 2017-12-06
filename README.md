@@ -1,7 +1,7 @@
 # EDMD
 ## Event Driven Molecular Dynamics with Python
 
-A simple, Python-based event-driven molecular dynamics simulation for hard-spheres. The simulation moves forward in time by calculating and moving to the time of the next 'event'. An event can be a collision between two particles, or a particle and a wall. The times associated with potential events are solved and placed in a priority queue. Particles move forward in time according to Newton’s Laws of Motion using a Velocity-Verlavet algorithm until the time of the first event in the priority queue is reached. The first event in the queue is then carried out and the queue is rebuilt based on the new system state. All collisions are treated as perfectly elastic. 
+A simple, Python-based event-driven molecular dynamics simulation for hard-spheres. The simulation moves forward in time by calculating and moving to the time of the next 'event'. An event can be a collision between two particles, a particle and a wall or a graphical update checkpoint. The times associated with potential events are solved and placed in a priority queue. Particles move forward in time according to Newton’s Laws of Motion using a Velocity-Verlavet algorithm until the time of the first event in the priority queue is reached. If this is a collision event, then this is carried out and the queue is rebuilt based on the new system state. All collisions are treated as perfectly elastic. 
 
 This is a Pythonic version of the JavaScript EDMD code that I authored for the [Visual Chemical Engineering (VCE) project](http://visualchemeng.com/). The JavaScript version is hosted on GitHub [here](https://github.com/adm78/visualchemeng_js/blob/master/modules/md/md.js). 
 
