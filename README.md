@@ -9,8 +9,8 @@ The JavaScript version is hosted on GitHub [here](https://github.com/adm78/visua
 
 ## Dependencies
 - Python 2.*
-- Pygame
-- Numpy
+- [Pygame](https://www.pygame.org/wiki/GettingStarted) (Graphics)
+- [Numpy](http://www.numpy.org/)
 
 ## Usage
 Default conditions
